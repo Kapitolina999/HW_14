@@ -15,7 +15,7 @@ class NetflixDAO:
         :param path: путь к БД
         """
         self.path = path
-        self.connection = sqlite3.connect(path)
+        self.connection = sqlite3.connect(path, check_same_thread=False)
         self.cursor = self.connection.cursor()
 
     def __del__(self):
@@ -76,7 +76,7 @@ class NetflixDAO:
         self.cursor.execute(f"""
                                 SELECT title, rating, description
                                 FROM netflix
-                                WHERE rating = {rating_dict[category]}
+                                WHERE rating in ({rating_dict[category]})
                                 GROUP BY title, rating, description
                                 LIMIT 100
                             """)
