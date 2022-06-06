@@ -15,7 +15,7 @@ class NetflixDAO:
         :param path: путь к БД
         """
         self.path = path
-        self.connection = sqlite3.connect(path)
+        self.connection = sqlite3.connect(path, check_same_thread=False)
         self.cursor = self.connection.cursor()
 
     def __del__(self):
@@ -76,17 +76,15 @@ class NetflixDAO:
         self.cursor.execute(f"""
                                 SELECT title, rating, description
                                 FROM netflix
-                                WHERE rating = {rating_dict[category]}
+                                WHERE rating in ({rating_dict[category]})
                                 GROUP BY title, rating, description
                                 LIMIT 100
                             """)
         result = self.cursor.fetchall()
-        return [
-            {"title": _[0],
-             "rating": _[1],
-             "description": _[2].rstrip('\n')
-             } for _ in result]
-
+        list_result = [{"title": _[0],
+                        "rating": _[1],
+                        "description": _[2].rstrip('\n')} for _ in result]
+        return json.dumps(list_result)
 
     def get_result_by_genre(self, genre):
         """
@@ -101,9 +99,9 @@ class NetflixDAO:
                                 LIMIT 10
                             """)
         list_result = [
-                {'title': _[0],
-                 'description': _[1]}
-                for _ in self.cursor.fetchall()]
+            {'title': _[0],
+             'description': _[1]}
+            for _ in self.cursor.fetchall()]
         return json.dumps(list_result)
 
     def get_result_by_cast(self, actor_1, actor_2):

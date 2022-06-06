@@ -4,9 +4,15 @@ from dao.netflix_dao import NetflixDAO
 
 app = Flask(__name__)
 
+#отключаем сортировку
 app.config['JSON_SORT_KEYS'] = False
 
 db = NetflixDAO('netflix.db')
+
+
+@app.route('/')
+def main():
+    return 'Главная'
 
 
 @app.route('/movie/<title>')
